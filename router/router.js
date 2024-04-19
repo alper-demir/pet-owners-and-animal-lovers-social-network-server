@@ -1,6 +1,7 @@
 import express from 'express'
 import User from "../models/User.js"
 import Post from "../models/Post.js"
+import Pet from "../models/PetProfile.js"
 import bcrypt from "bcrypt"
 import verifyToken from "../middlewares/verifyToken.js"
 import generateToken from "../utils/generateToken.js"
@@ -75,10 +76,10 @@ router.post("/create-post", async (req, res) => {
     }
 })
 
-router.get("/:username", verifyToken, async (req, res) => {
+router.post("/user-data/:username", verifyToken, async (req, res) => {
     const username = req.params.username;
     try {
-        const user = await User.findOne({ username }).populate({ path: "posts" });
+        const user = await User.findOne({ username }, { about: 1, firstName: 1, lastName: 1, posts: 1, pets: 1, username: 1 });
         if (user) {
             return res.json({ user });
         }
@@ -104,6 +105,63 @@ router.post('/verify-token', (req, res) => {
 
     } catch (error) {
         return res.json({ message: "Geçersiz veya süresi dolmuş token.", verify: false });
+    }
+});
+
+router.post('/posts/:username', verifyToken, async (req, res) => {
+    const username = req.params.username;
+
+    try {
+        const posts = await User.findOne({ username }).populate("posts").select("posts");
+        res.json(posts); // Postları JSON olarak yanıtla
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Sunucu hatası' }); // Sunucu hatası durumunda hata mesajı ile yanıtla
+    }
+});
+
+router.post("/create-pet-profile", async (req, res) => {
+    const { userId, name, species, breed, birthDate, profileUrl, weight, color } = req.body;
+    try {
+        const user = await User.findById(userId);
+        if (user) {
+            const newPetProfile = await Pet.create({ userId, name, species, breed, birthDate, profileUrl, weight, color });
+            const petProfileId = newPetProfile._id;
+            if (newPetProfile) {
+                console.log("New pet profile: " + newPetProfile);
+                const updatedUser = await User.findByIdAndUpdate(user, { $push: { pets: petProfileId } }, { new: true });
+                console.log({ message: `Updated user: ${updatedUser}` });
+            }
+        }
+
+        return res.send("New pet profile added");
+
+    } catch (error) {
+        console.log("Create pet profile error: " + error);
+        res.send("New pet profile create error");
+    }
+});
+
+router.post('/pets/:username', verifyToken, async (req, res) => {
+    const username = req.params.username;
+
+    try {
+        const pets = await User.findOne({ username }).populate("pets").select("pets");
+        res.json(pets); // Postları JSON olarak yanıtla
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Sunucu hatası' }); // Sunucu hatası durumunda hata mesajı ile yanıtla
+    }
+});
+
+router.post('/pet/:petId', verifyToken, async (req, res) => {
+    const petId = req.params.petId;
+    try {
+        const pet = await Pet.findById(petId);
+        res.json(pet);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Sunucu hatası' }); // Sunucu hatası durumunda hata mesajı ile yanıtla
     }
 });
 
