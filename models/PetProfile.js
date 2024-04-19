@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const AnimalProfileSchema = new mongoose.Schema({
+const PetProfileSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -18,9 +18,13 @@ const AnimalProfileSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    age: {
-        type: Number,
+    birthDate: {
+        type: Date,
         required: true,
+    },
+    profileUrl : {
+        type : String,
+        require : true
     },
     weight: {
         type: Number,
@@ -36,4 +40,4 @@ const AnimalProfileSchema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model("AnimalProfile", AnimalProfileSchema);
+export default mongoose.model("Pet", PetProfileSchema);

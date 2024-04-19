@@ -26,10 +26,13 @@ const UserSchema = new mongoose.Schema({
     profileUrl: {
         type: String,
     },
-    animalProfiles: [
+    about : {
+        type : String
+    },
+    pets: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "AnimalProfile",
+            ref: "Pet",
         }
     ],
     posts: [
