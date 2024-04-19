@@ -4,7 +4,7 @@ const verifyToken = (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
-        return res.status(401).json({ message: "Erişim reddedildi. Geçerli bir token sağlanmadı." });
+        return res.status(401).json({ message: "Access denied. No valid token provided." });
     }
 
     try {
@@ -15,7 +15,7 @@ const verifyToken = (req, res, next) => {
         next();
     } catch (error) {
         // Token geçersiz veya süresi dolmuşsa
-        return res.status(401).json({ message: "Geçersiz veya süresi dolmuş token." });
+        return res.status(401).json({ message: "Invalid or expired token." });
     }
 };
 
