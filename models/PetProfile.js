@@ -22,9 +22,9 @@ const PetProfileSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
-    profileUrl : {
-        type : String,
-        require : true
+    profileUrl: {
+        type: String,
+        require: true
     },
     weight: {
         type: Number,
@@ -33,6 +33,10 @@ const PetProfileSchema = new mongoose.Schema({
     color: {
         type: String,
         required: true,
+    },
+    gender: {
+        type: String,
+        required: true
     },
     createdAt: {
         type: Date,
