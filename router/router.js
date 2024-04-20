@@ -2,6 +2,7 @@ import express from 'express'
 import User from "../models/User.js"
 import Post from "../models/Post.js"
 import Pet from "../models/PetProfile.js"
+import Comment from "../models/Comments.js"
 import bcrypt from "bcrypt"
 import verifyToken from "../middlewares/verifyToken.js"
 import generateToken from "../utils/generateToken.js"
@@ -157,12 +158,53 @@ router.post('/pets/:username', verifyToken, async (req, res) => {
 router.post('/pet/:petId', verifyToken, async (req, res) => {
     const petId = req.params.petId;
     try {
-        const pet = await Pet.findById(petId);
+        const pet = await Pet.findById(petId).populate("userId", { username: 1 }).select();
         res.json(pet);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Sunucu hatası' }); // Sunucu hatası durumunda hata mesajı ile yanıtla
     }
 });
+
+router.post('/post/:postId', verifyToken, async (req, res) => {
+    const postId = req.params.postId;
+    try {
+        const post = await Post.findById(postId).populate("userId", { username: 1, profileUrl: 1, firstName: 1, lastName: 1 }) // owner of post
+            .populate({
+                path: "comments",
+                populate: {
+                    path: "userId",
+                    select: { username: 1, profileUrl: 1, firstName: 1, lastName: 1 } // selection of needed fields
+                }
+            })
+            .populate("likes", { username: 1, profileUrl: 1 });
+        res.json(post);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Sunucu hatası' });
+    }
+});
+
+router.post('/create-comment', verifyToken, async (req, res) => {
+    const { userId, postId, content } = req.body;
+    try {
+        const user = await User.findById(userId);
+        if (user) {
+            const newComment = await Comment.create({ userId, postId, content });
+            const commentId = newComment._id;
+            if (newComment) {
+                console.log("New post : " + newComment);
+                const updatedUser = await User.findByIdAndUpdate(user, { $push: { comments: commentId } }, { new: true });
+                console.log({ message: `Updated user : ${updatedUser}` })
+            }
+        }
+
+        return res.send("New comment added")
+
+    } catch (error) {
+        console.log("Create comment error: " + error);
+        res.send("New comment create error")
+    }
+})
 
 export default router;
