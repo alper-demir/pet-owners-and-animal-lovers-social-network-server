@@ -26,8 +26,8 @@ const UserSchema = new mongoose.Schema({
     profileUrl: {
         type: String,
     },
-    about : {
-        type : String
+    about: {
+        type: String
     },
     pets: [
         {
@@ -39,6 +39,12 @@ const UserSchema = new mongoose.Schema({
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Post",
+        }
+    ],
+    comments: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Comment",
         }
     ],
     createdAt: {
