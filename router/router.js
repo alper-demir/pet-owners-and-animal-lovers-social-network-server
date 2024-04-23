@@ -177,7 +177,7 @@ router.post('/post/:postId', verifyToken, async (req, res) => {
                     select: { username: 1, profileUrl: 1, firstName: 1, lastName: 1 } // selection of needed fields
                 }
             })
-            .populate("likes", { username: 1, profileUrl: 1 });
+            .populate("likes", { username: 1, profileUrl: 1, firstName: 1, lastName: 1 });
         res.json(post);
     } catch (error) {
         console.error(error);
@@ -194,12 +194,12 @@ router.post('/create-comment', verifyToken, async (req, res) => {
             const commentId = newComment._id;
             if (newComment) {
                 console.log("New post : " + newComment);
-                const updatedUser = await User.findByIdAndUpdate(user, { $push: { comments: commentId } }, { new: true });
-                console.log({ message: `Updated user : ${updatedUser}` })
+                await User.findByIdAndUpdate(user, { $push: { comments: commentId } }, { new: true });
+                await Post.findByIdAndUpdate(postId, { $push: { comments: commentId } }, { new: true });
             }
+            return res.json({ newComment, message: "New comment added" })
         }
 
-        return res.send("New comment added")
 
     } catch (error) {
         console.log("Create comment error: " + error);
