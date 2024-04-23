@@ -3,6 +3,7 @@ import User from "../models/User.js"
 import Post from "../models/Post.js"
 import Pet from "../models/PetProfile.js"
 import Comment from "../models/Comments.js"
+import Like from "../models/Likes.js"
 import bcrypt from "bcrypt"
 import verifyToken from "../middlewares/verifyToken.js"
 import generateToken from "../utils/generateToken.js"
@@ -177,7 +178,7 @@ router.post('/post/:postId', verifyToken, async (req, res) => {
                     select: { username: 1, profileUrl: 1, firstName: 1, lastName: 1 } // selection of needed fields
                 }
             })
-            .populate("likes", { username: 1, profileUrl: 1, firstName: 1, lastName: 1 });
+            .populate("likes", { username: 1, profileUrl: 1, firstName: 1, lastName: 1 })
         res.json(post);
     } catch (error) {
         console.error(error);
@@ -206,5 +207,70 @@ router.post('/create-comment', verifyToken, async (req, res) => {
         res.send("New comment create error")
     }
 })
+
+router.post("/like-post", verifyToken, async (req, res) => {
+    const { userId, postId } = req.body;
+    try {
+        const user = await User.findById(userId);
+        const post = await Post.findById(postId);
+
+        if (!user.likes.includes(postId)) {
+            await post.updateOne({ $push: { likes: userId } });
+            await user.updateOne({ $push: { likes: postId } });
+            return res.json({ message: "New like pushed!", liked: true });
+
+        } else {
+            await post.updateOne({ $pull: { likes: userId } });
+            await user.updateOne({ $pull: { likes: postId } });
+            return res.json({ message: "Like pulled!", liked: false });
+        }
+
+
+    } catch (error) {
+        console.log("Create like error: " + error);
+        res.status(500).json({ message: "New like create error" });
+    }
+});
+
+router.post("/check-post-like-status", verifyToken, async (req, res) => {
+    const { userId, postId } = req.body;
+    try {
+        // Kullanıcının likes alanında postId'yi içeren bir girişi var mı kontrol et
+        const user = await User.findById(userId);
+        const liked = user.likes.includes(postId);
+        
+        res.json({ liked });
+    } catch (error) {
+        console.error("Check post like status error:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+//timeline alanı için kullanılabilir yapı
+// router.post("/check-post-like-status", verifyToken, async (req, res) => {
+//     const { userId } = req.body;
+//     try {
+//         // Kullanıcının beğendiği tüm postları al
+//         const user = await User.findById(userId);
+//         const likedPosts = user.likes;
+
+//         // Tüm postları al
+//         const allPosts = await Post.find();
+
+//         // Her bir post için kontrol et ve beğenildiyse liked: true, değilse liked: false
+//         const updatedPosts = allPosts.map(post => ({
+//             ...post.toObject(),
+//             liked: likedPosts.includes(post._id)
+//         }));
+
+//         res.json(updatedPosts);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Sunucu hatası' });
+//     }
+// });
+
+
+
 
 export default router;
