@@ -25,6 +25,7 @@ const UserSchema = new mongoose.Schema({
     },
     profileUrl: {
         type: String,
+        default : "defaultAvatar.jpg"
     },
     about: {
         type: String
@@ -54,6 +55,19 @@ const UserSchema = new mongoose.Schema({
             default: 0
         }
     ],
+    privacy: {
+        type: String,
+        enum: ["public", "private"],
+        default: "public"
+    },
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    followings: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
     createdAt: {
         type: Date,
         default: Date.now,
