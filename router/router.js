@@ -4,6 +4,7 @@ import Post from "../models/Post.js"
 import Pet from "../models/PetProfile.js"
 import Comment from "../models/Comments.js"
 import FollowRequest from "../models/FollowRequest.js"
+import LostPet from "../models/LostPet.js"
 import bcrypt from "bcrypt"
 import verifyToken from "../middlewares/verifyToken.js"
 import generateToken from "../utils/generateToken.js"
@@ -414,6 +415,147 @@ router.put("/reject-follow-request/:requestId", verifyToken, async (req, res) =>
         return res.status(500).json({ message: "Server error" });
     }
 });
+
+router.post('/create-lost-pet-advert', async (req, res) => {
+    try {
+        const {
+            name,
+            species,
+            age,
+            gender,
+            image,
+            color,
+            breed,
+            lastSeenLocation,
+            lastSeenDate,
+            lostStatus,
+            contactPhoneNumber,
+            contactEmail,
+            description,
+            createdBy
+        } = req.body;
+
+        const newLostPet = {
+            name,
+            species,
+            age,
+            gender,
+            image,
+            color,
+            breed,
+            lastSeenLocation,
+            lastSeenDate,
+            lostStatus,
+            contactPhoneNumber,
+            contactEmail,
+            description,
+            createdBy
+        };
+
+        // Yeni kayıp hayvan nesnesini oluştur
+        const createdLostPet = await LostPet.create(newLostPet);
+
+        return res.status(201).json(createdLostPet);
+    } catch (error) {
+        console.error('Error creating lost pet listing:', error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.get('/lost-pets', async (req, res) => {
+    try {
+        const { page = 1, limit = 20 } = req.query;
+
+        // Veritabanından kayıp hayvan ilanlarını sayfalama ile al
+        const lostPets = await LostPet.find().populate("createdBy", { username: 1, firstName: 1, lastName: 1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+        // Toplam ilan sayısını al
+        const totalCount = await LostPet.countDocuments();
+
+        // Toplam sayfa sayısını hesapla
+        const totalPages = Math.ceil(totalCount / limit);
+        // Mevcut sayfa, toplam sayfa ve ilan listesini yanıt olarak gönder
+        return res.status(200).json({
+            lostPets,
+            totalPages,
+            currentPage: page
+        });
+    } catch (error) {
+        console.error('Error listing lost pet listings:', error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.get("/lost-pet-notice/:id", async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const lostPet = await LostPet.findById(id).populate("createdBy", { firstName: 1, lastName: 1, username: 1 });
+        if (!lostPet) {
+            return res.status(404).json({ message: "Lost pet not found" });
+        }
+        res.status(200).json(lostPet);
+    } catch (error) {
+        console.error("Error fetching lost pet details:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+router.put("/lost-pet-notice/:id", verifyToken, async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body; // Giriş yapan kullanıcının ID'si
+    const {
+        name,
+        species,
+        age,
+        gender,
+        image,
+        color,
+        breed,
+        lastSeenLocation,
+        lastSeenDate,
+        lostStatus,
+        contactPhoneNumber,
+        contactEmail,
+        description,
+    } = req.body;
+
+    const updatedLostPet = {};
+    updatedLostPet.name = name?.trim();
+    updatedLostPet.species = species?.trim();
+    updatedLostPet.age = age;
+    updatedLostPet.gender = gender?.trim();
+    updatedLostPet.image = image?.trim();
+    updatedLostPet.color = color?.trim();
+    updatedLostPet.breed = breed?.trim();
+    updatedLostPet.lastSeenLocation = lastSeenLocation?.trim();
+    updatedLostPet.lastSeenDate = lastSeenDate;
+    updatedLostPet.lostStatus = lostStatus?.trim();
+    updatedLostPet.contactPhoneNumber = contactPhoneNumber?.trim();
+    updatedLostPet.contactEmail = contactEmail?.trim();
+    updatedLostPet.description = description?.trim();
+    try {
+        // İlanı bul ve kullanıcı ID'siyle eşleşip eşleşmediğini kontrol et
+        const lostPet = await LostPet.findByIdAndUpdate(id, updatedLostPet, { new: true });
+        if (!lostPet) {
+            return res.status(404).json({ message: "Lost pet not found" });
+        }
+        if (lostPet.createdBy._id.toString() !== userId) {
+            return res.status(403).json({ message: "You are not authorized to update this lost pet notice" });
+        }
+
+        if (lostPet) {
+            return res.status(200).json({ message: "Lost pet notice updated successfully", lostPet });
+        }
+
+    } catch (error) {
+        console.error("Error updating lost pet notice:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
+
 
 
 
