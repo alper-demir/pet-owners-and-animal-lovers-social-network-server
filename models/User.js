@@ -25,10 +25,14 @@ const UserSchema = new mongoose.Schema({
     },
     profileUrl: {
         type: String,
-        default : "defaultAvatar.jpg"
+        default: "defaultAvatar.jpg"
     },
     about: {
         type: String
+    },
+    gender: {
+        type: String,
+        enum: ["male", "female"]
     },
     pets: [
         {

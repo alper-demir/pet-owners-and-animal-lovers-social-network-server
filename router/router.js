@@ -9,7 +9,9 @@ import bcrypt from "bcrypt"
 import verifyToken from "../middlewares/verifyToken.js"
 import generateToken from "../utils/generateToken.js"
 import jwt from "jsonwebtoken"
-
+import upload from '../utils/upload.js'
+import fs from "fs"
+import path from "path"
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
@@ -90,10 +92,54 @@ router.post("/create-post", async (req, res) => {
     }
 })
 
+router.put('/update-profile-image/:userId', upload.single("image"), verifyToken, async (req, res) => {
+    console.log(req.file.filename);
+    const { userId } = req.params;
+
+    try {
+        // Kullanıcının eski profil fotoğrafını bul
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(userId, { profileUrl: req.file.filename });
+        if (updatedUser && user.profileUrl) {
+            // Delete old profile pic
+            fs.unlink(path.join(process.cwd(), 'public', 'images', user.profileUrl), (err) => { console.log(err) });
+            return res.json({ message: "Profile picture updated.", status: "success" }).status(200);
+        } else {
+            return res.json({ message: "Profile picture update failed." }).status(400);
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
+
+router.put('/update-profile/:userId', verifyToken, async (req, res) => {
+    const { userId } = req.params;
+    const updateFields = req.body;
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, updateFields, { new: true });
+
+        if (updatedUser) {
+            return res.json({ message: "Profile updated successfully.", status: "success" });
+        } else {
+            return res.status(404).json({ message: "User not found.", status: "error" });
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        return res.status(500).json({ message: "An error occurred while updating profile.", status: "error" });
+    }
+});
+
+
 router.post("/user-data/:username", verifyToken, async (req, res) => {
     const username = req.params.username;
     try {
-        const user = await User.findOne({ username }, { about: 1, firstName: 1, lastName: 1, posts: 1, pets: 1, username: 1, profileUrl: 1 });
+        const user = await User.findOne({ username }, { about: 1, firstName: 1, lastName: 1, posts: 1, pets: 1, username: 1, profileUrl: 1, privacy: 1, gender: 1 });
         if (user) {
             return res.json({ user });
         }
