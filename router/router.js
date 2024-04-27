@@ -12,13 +12,24 @@ import jwt from "jsonwebtoken"
 
 const router = express.Router();
 
-router.post("/create-user", async (req, res) => {
+router.post("/register", async (req, res) => {
     const { firstName, lastName, username, email, password } = req.body;
     try {
+
+        const usernameExists = await User.findOne({ username });
+        const emailExists = await User.findOne({ email });
+
+        if (usernameExists) {
+            return res.json({ message: "This username is already taken by other user", status: "error" });
+        }
+        if (emailExists) {
+            return res.json({ message: "This email is used by other user", status: "error" });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({ firstName, lastName, username, email, password: hashedPassword });
         if (newUser) {
-            return res.json(newUser).status(201);
+            return res.json({ newUser, message: "Registration successful" }).status(201);
         }
         return res.json({ message: "User create error" }).status(404);
     }
@@ -97,7 +108,7 @@ router.post('/verify-token', (req, res) => {
     const token = req.headers.authorization;
     console.log("token: " + token);
     if (!token) {
-        return res.json({ message: "Erişim reddedildi. Geçerli bir token sağlanmadı.", verify: false });
+        return res.json({ message: "Access denied. No valid token provided.", verify: false });
     }
 
     try {
@@ -107,7 +118,7 @@ router.post('/verify-token', (req, res) => {
         }
 
     } catch (error) {
-        return res.json({ message: "Geçersiz veya süresi dolmuş token.", verify: false });
+        return res.json({ message: "Invalid or expired token.", verify: false });
     }
 });
 
