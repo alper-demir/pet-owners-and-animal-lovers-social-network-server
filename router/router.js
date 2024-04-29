@@ -70,34 +70,34 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.post("/create-post", async (req, res) => {
-    const { userId, title, content, image } = req.body;
-    try {
-        const user = await User.findById(userId);
-        if (user) {
-            const newPost = await Post.create({ userId, title, content, image });
-            const postId = newPost._id;
-            if (newPost) {
-                console.log("New post : " + newPost);
-                const updatedUser = await User.findByIdAndUpdate(user, { $push: { posts: postId } }, { new: true });
-                console.log({ message: `Updated user : ${updatedUser}` })
-            }
-        }
+router.post("/create-post", upload.single("image"), verifyToken, async (req, res) => {
+    const { userId, content } = req.body; // userId ve content gibi diğer verileri al
+    const title = "Your Title"; // Gerekirse başlık da alınabilir veya sabit bir değer atanabilir
 
-        return res.send("New post added")
-
-    } catch (error) {
-        console.log("Create post error: " + error);
-        res.send("New post create error")
+    if (!req.file) { // Dosya yüklenmediyse hata gönder
+        return res.status(400).json({ message: "Please select a file", status: "error" });
     }
-})
+
+    try {
+        const newPost = await Post.create({ userId, title, content, image: req.file.filename });
+        const postId = newPost._id;
+        const updatedUser = await User.findByIdAndUpdate(userId, { $push: { posts: postId } }, { new: true });
+
+        console.log("New post:", newPost);
+        console.log("Updated user:", updatedUser);
+
+        return res.status(201).json({ message: "New post added", status: "success" });
+    } catch (error) {
+        console.error("Create post error:", error);
+        return res.status(500).json({ message: "An error occurred while creating post", status: "error" });
+    }
+});
 
 router.put('/update-profile-image/:userId', upload.single("image"), verifyToken, async (req, res) => {
     console.log(req.file.filename);
     const { userId } = req.params;
 
     try {
-        // Kullanıcının eski profil fotoğrafını bul
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -134,7 +134,6 @@ router.put('/update-profile/:userId', verifyToken, async (req, res) => {
         return res.status(500).json({ message: "An error occurred while updating profile.", status: "error" });
     }
 });
-
 
 router.post("/user-data/:username", verifyToken, async (req, res) => {
     const username = req.params.username;
@@ -180,25 +179,26 @@ router.post('/posts/:username', verifyToken, async (req, res) => {
     }
 });
 
-router.post("/create-pet-profile", async (req, res) => {
-    const { userId, name, species, breed, birthDate, profileUrl, weight, color } = req.body;
+router.post("/create-pet-profile", upload.single("image"), verifyToken, async (req, res) => {
+    const { userId, name, species, breed, birthDate, weight, color, gender } = req.body;
+    const image = req.file.filename;
     try {
         const user = await User.findById(userId);
-        if (user) {
-            const newPetProfile = await Pet.create({ userId, name, species, breed, birthDate, profileUrl, weight, color });
+        if (user && image) {
+            const newPetProfile = await Pet.create({ userId, name, species, breed, birthDate, profileUrl: image, weight, color, gender });
             const petProfileId = newPetProfile._id;
             if (newPetProfile) {
                 console.log("New pet profile: " + newPetProfile);
                 const updatedUser = await User.findByIdAndUpdate(user, { $push: { pets: petProfileId } }, { new: true });
                 console.log({ message: `Updated user: ${updatedUser}` });
+                return res.json({ message: "New pet profile added", status: "success" });
             }
         }
-
-        return res.send("New pet profile added");
+        return res.json({ message: "New pet profile create error", status: "error" });
 
     } catch (error) {
         console.log("Create pet profile error: " + error);
-        res.send("New pet profile create error");
+        return res.json({ message: "New pet profile create error", status: "error" });
     }
 });
 
@@ -571,6 +571,7 @@ router.put("/lost-pet-notice/:id", verifyToken, async (req, res) => {
         image,
         color,
         breed,
+        city,
         lastSeenLocation,
         lastSeenDate,
         lostStatus,
@@ -587,6 +588,7 @@ router.put("/lost-pet-notice/:id", verifyToken, async (req, res) => {
     updatedLostPet.image = image?.trim();
     updatedLostPet.color = color?.trim();
     updatedLostPet.breed = breed?.trim();
+    updatedLostPet.city = city?.trim();
     updatedLostPet.lastSeenLocation = lastSeenLocation?.trim();
     updatedLostPet.lastSeenDate = lastSeenDate;
     updatedLostPet.lostStatus = lostStatus?.trim();
@@ -613,7 +615,17 @@ router.put("/lost-pet-notice/:id", verifyToken, async (req, res) => {
     }
 });
 
+router.post('/notices/:username', verifyToken, async (req, res) => {
+    const username = req.params.username;
 
+    try {
+        const notices = await User.findOne({ username }).populate("notices").select("notices");
+        res.json(notices);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 
 export default router;
