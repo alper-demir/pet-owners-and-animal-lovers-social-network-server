@@ -49,7 +49,7 @@ const LostPetSchema = new mongoose.Schema({
     },
     contactEmail: String,
     description: String,
-    createdBy: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,

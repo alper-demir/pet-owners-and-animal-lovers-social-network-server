@@ -473,24 +473,26 @@ router.put("/reject-follow-request/:requestId", verifyToken, async (req, res) =>
     }
 });
 
-router.post('/create-lost-pet-advert', async (req, res) => {
+router.post('/create-lost-pet-notice', upload.single("image"), verifyToken, async (req, res) => {
     try {
         const {
             name,
             species,
             age,
             gender,
-            image,
             color,
             breed,
+            city,
             lastSeenLocation,
             lastSeenDate,
             lostStatus,
             contactPhoneNumber,
             contactEmail,
             description,
-            createdBy
+            userId
         } = req.body;
+
+        const image = req.file.filename
 
         const newLostPet = {
             name,
@@ -500,23 +502,40 @@ router.post('/create-lost-pet-advert', async (req, res) => {
             image,
             color,
             breed,
+            city,
             lastSeenLocation,
             lastSeenDate,
             lostStatus,
             contactPhoneNumber,
             contactEmail,
             description,
-            createdBy
+            userId
         };
 
-        // Yeni kayıp hayvan nesnesini oluştur
-        const createdLostPet = await LostPet.create(newLostPet);
+        try {
+            const user = await User.findById(userId);
+            if (user && image) {
+                const newLostNotice = await LostPet.create(newLostPet);
+                const lostNoticeId = newLostNotice._id;
+                if (newLostNotice) {
+                    console.log("New lost notice: " + newLostNotice);
+                    const updatedUser = await User.findByIdAndUpdate(userId, { $push: { notices: lostNoticeId } }, { new: true });
+                    console.log({ message: `Updated user: ${updatedUser}` });
+                    return res.json({ message: "New lost notice created", status: "success" }).status(201);
+                }
+            }
 
-        return res.status(201).json(createdLostPet);
+        } catch (error) {
+            console.log("Create lost notice  error: " + error);
+            return res.json({ message: "New lost notice create error", status: "error" });
+        }
+
+
     } catch (error) {
-        console.error('Error creating lost pet listing:', error);
+        console.error('Error creating lost pet notice:', error);
         return res.status(500).json({ message: 'Server error' });
     }
+
 });
 
 router.get('/lost-pets', async (req, res) => {
@@ -549,7 +568,7 @@ router.get("/lost-pet-notice/:id", async (req, res) => {
     const id = req.params.id;
 
     try {
-        const lostPet = await LostPet.findById(id).populate("createdBy", { firstName: 1, lastName: 1, username: 1 });
+        const lostPet = await LostPet.findById(id).populate("userId", { firstName: 1, lastName: 1, username: 1 });
         if (!lostPet) {
             return res.status(404).json({ message: "Lost pet not found" });
         }
