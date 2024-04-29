@@ -46,6 +46,12 @@ const UserSchema = new mongoose.Schema({
             ref: "Post",
         }
     ],
+    notices: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "LostPet",
+        }
+    ],
     comments: [
         {
             type: mongoose.Schema.Types.ObjectId,
