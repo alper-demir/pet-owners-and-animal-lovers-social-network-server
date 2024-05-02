@@ -1,5 +1,7 @@
 import LostPet from "../models/LostPet.js"
 import User from "../models/User.js"
+import fs from "fs"
+import path from "path"
 
 export const createLostPetNotice = async (req, res) => {
     try {
@@ -68,9 +70,8 @@ export const createLostPetNotice = async (req, res) => {
 export const getLostPetNoticeList = async (req, res) => { // Listing of posted notices
     try {
         const { page = 1, limit = 20 } = req.query;
-
         // Retrieve lost animal advertisements from the database with pagination
-        const lostPets = await LostPet.find().populate("createdBy", { username: 1, firstName: 1, lastName: 1 })
+        const lostPets = await LostPet.find().populate("userId", { username: 1, firstName: 1, lastName: 1 })
             .limit(limit * 1)
             .skip((page - 1) * limit)
             .exec();
@@ -114,7 +115,6 @@ export const updateOneNotice = async (req, res) => {
         species,
         age,
         gender,
-        image,
         color,
         breed,
         city,
@@ -125,7 +125,7 @@ export const updateOneNotice = async (req, res) => {
         contactEmail,
         description,
     } = req.body;
-
+    const image = req.file?.filename
     const updatedLostPet = {};
     updatedLostPet.name = name?.trim();
     updatedLostPet.species = species?.trim();
@@ -143,7 +143,8 @@ export const updateOneNotice = async (req, res) => {
     updatedLostPet.description = description?.trim();
     try {
         // Find the ad and check if it matches the user ID
-        const lostPet = await LostPet.findByIdAndUpdate(id, updatedLostPet, { new: true });
+        const lostPet = await LostPet.findById(id)
+        const updateLostPet = await LostPet.findByIdAndUpdate(id, updatedLostPet, { new: true });
         if (!lostPet) {
             return res.status(404).json({ message: "Lost pet not found" });
         }
@@ -151,8 +152,12 @@ export const updateOneNotice = async (req, res) => {
             return res.status(403).json({ message: "You are not authorized to update this lost pet notice" });
         }
 
-        if (lostPet) {
-            return res.status(200).json({ message: "Lost pet notice updated successfully", lostPet });
+        if (updateLostPet && image) {
+            // Delete old Notice Image
+            fs.unlink(path.join(process.cwd(), 'public', 'images', lostPet.image), (err) => { console.log(err) });
+            return res.status(200).json({ message: "Lost pet notice updated successfully", lostPet, status: "success" });
+        } else {
+            return res.status(200).json({ message: "Lost pet notice updated successfully", lostPet, status: "success" });
         }
 
     } catch (error) {

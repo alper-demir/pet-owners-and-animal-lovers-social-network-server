@@ -69,6 +69,6 @@ router.get('/lost-pets', getLostPetNoticeList);
 
 router.get("/lost-pet-notice/:id", getOneLostPetNotice);
 
-router.put("/lost-pet-notice/:id", verifyToken, updateOneNotice);
+router.put("/lost-pet-notice/:id", upload.single("image"), verifyToken, updateOneNotice);
 
 export default router;
