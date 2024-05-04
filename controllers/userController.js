@@ -1,7 +1,9 @@
 import User from "../models/User.js"
 import Post from "../models/Post.js"
+import LostPet from "../models/LostPet.js"
 import fs from "fs"
 import path from "path"
+import Pet from "../models/PetProfile.js"
 
 export const updateProfileImage = async (req, res) => {
     const { userId } = req.params;
@@ -157,5 +159,46 @@ export const checkProfileVisibility = async (req, res) => { // checks profile vi
     } catch (error) {
         console.error("Error checking profile visibility:", error);
         return res.status(500).json({ message: "Server error", status: "error" });
+    }
+}
+
+export const search = async (req, res) => {
+    const searchText = req.query.q;
+
+    try {
+        const users = await User.find({
+            $or: [
+                { firstName: { $regex: searchText, $options: 'i' } },
+                { lastName: { $regex: searchText, $options: 'i' } },
+                { username: { $regex: searchText, $options: 'i' } }
+            ]
+        }).select('firstName lastName username profileUrl').limit(5);
+
+        const posts = await Post.find({
+            $or: [
+                { title: { $regex: searchText, $options: 'i' } },
+                { content: { $regex: searchText, $options: 'i' } }
+            ]
+        }).select('content image').limit(5);
+
+        const pets = await Pet.find({
+            $or: [
+                { name: { $regex: searchText, $options: 'i' } },
+                { species: { $regex: searchText, $options: 'i' } },
+                { breed: { $regex: searchText, $options: 'i' } }
+            ]
+        }).select('name species breed profileUrl').limit(5);
+
+        const lostPets = await LostPet.find({
+            $or: [
+                { name: { $regex: searchText, $options: 'i' } },
+                { description: { $regex: searchText, $options: 'i' } }
+            ]
+        }).select('name description image').limit(5);
+
+        res.json({ users, posts, pets, lostPets });
+    } catch (error) {
+        console.error('Error searching:', error);
+        res.status(500).json({ message: 'An error occurred while searching' });
     }
 }
