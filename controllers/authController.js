@@ -34,11 +34,11 @@ export const login = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         const data = {
-            userId: user._id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            username: user.username,
-            profileUrl: user.profileUrl
+            userId: user?._id,
+            firstName: user?.firstName,
+            lastName: user?.lastName,
+            username: user?.username,
+            profileUrl: user?.profileUrl
         }
         if (user) {
             const compare = await bcrypt.compare(password, user.password);
