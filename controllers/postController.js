@@ -38,6 +38,36 @@ export const getOnePost = async (req, res) => {
         res.json(post);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Sunucu hatası' });
+        res.status(500).json({ message: 'Server error', status: "error" });
+    }
+}
+
+export const updatePost = async (req, res) => {
+    const { postId } = req.params;
+    const { content } = req.body;
+    try {
+        const updatePost = await Post.findByIdAndUpdate(postId, { content })
+        if (updatePost) {
+            return res.status(201).json({ message: "Post updated succesfully", status: "success" });
+        } else {
+            return res.status(400).json({ message: "Post updated error", status: "error" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', status: "error" });
+    }
+}
+
+export const deletePost = async (req, res) => {
+    const { postId } = req.params;
+    try {
+        const deletePost = await Post.deleteOne({ _id: postId });
+        if (deletePost) {
+            return res.status(201).json({ message: "Post deleted succesfully", status: "success" });
+        } else {
+            return res.status(400).json({ message: "An error occured during post delete", status: "error" });
+        }
+    } catch (error) {
+        return res.status(400).json({ message: "An error occured during post delete", status: "error" });
     }
 }

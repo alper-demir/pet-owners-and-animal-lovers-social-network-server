@@ -3,12 +3,12 @@ import verifyToken from "../middlewares/verifyToken.js"
 import upload from '../utils/upload.js'
 
 import { login, register, verifyTokenValid } from "../controllers/authController.js"
-import { createPost, getOnePost } from "../controllers/postController.js"
+import { createPost, getOnePost, updatePost, deletePost } from "../controllers/postController.js"
 import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, search } from "../controllers/userController.js"
-import { createPetProfile, getOnePet } from "../controllers/petProfileController.js"
+import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from "../controllers/petProfileController.js"
 import { createComment } from "../controllers/commentController.js"
 import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowRequest, acceptFollowRequest, rejectFollowRequest } from "../controllers/followRequestController.js"
-import { createLostPetNotice, getLostPetNoticeList, getOneLostPetNotice, updateOneNotice } from "../controllers/lostPetNoticeController.js"
+import { createLostPetNotice, getLostPetNoticeList, getOneLostPetNotice, updateOneNotice, deleteNotice } from "../controllers/lostPetNoticeController.js"
 
 const router = express.Router();
 
@@ -23,6 +23,10 @@ router.post('/verify-token', verifyTokenValid);
 router.post("/create-post", upload.single("image"), verifyToken, createPost);
 
 router.post('/post/:postId', verifyToken, getOnePost);
+
+router.put('/update-post/:postId', verifyToken, updatePost)
+
+router.delete('/delete-post/:postId', verifyToken, deletePost)
 
 // User Operations
 router.put('/update-profile-image/:userId', upload.single("image"), verifyToken, updateProfileImage);
@@ -48,7 +52,11 @@ router.get("/search", search)
 // Pet Profile Operations
 router.post("/create-pet-profile", upload.single("image"), verifyToken, createPetProfile);
 
-router.post('/pet/:petId', verifyToken, getOnePet);
+router.post('/pet/:id', verifyToken, getOnePet);
+
+router.put("/pet-profile/:id", upload.single("image"), verifyToken, updatePetProfile);
+
+router.delete('/delete-pet-profile/:id', verifyToken, deletePetProfile)
 
 // Comment Operations
 router.post('/create-comment', verifyToken, createComment)
@@ -72,5 +80,7 @@ router.get('/lost-pets', getLostPetNoticeList);
 router.get("/lost-pet-notice/:id", getOneLostPetNotice);
 
 router.put("/lost-pet-notice/:id", upload.single("image"), verifyToken, updateOneNotice);
+
+router.delete('/delete-notice/:id', verifyToken, deleteNotice);
 
 export default router;

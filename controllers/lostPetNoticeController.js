@@ -165,3 +165,17 @@ export const updateOneNotice = async (req, res) => {
         return res.status(500).json({ message: "Server error", status: error });
     }
 }
+
+export const deleteNotice = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const deleteNotice = await LostPet.findByIdAndDelete(id);
+        if (deleteNotice) {
+            return res.status(201).json({ message: "Notice deleted succesfully", status: "success" });
+        } else {
+            return res.status(400).json({ message: "An error occured during notice delete", status: "error" });
+        }
+    } catch (error) {
+        return res.status(400).json({ message: "An error occured during notice delete", status: "error" });
+    }
+}
