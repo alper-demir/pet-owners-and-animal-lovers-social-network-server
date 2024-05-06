@@ -4,6 +4,7 @@ import LostPet from "../models/LostPet.js"
 import fs from "fs"
 import path from "path"
 import Pet from "../models/PetProfile.js"
+import { json } from "express"
 
 export const updateProfileImage = async (req, res) => {
     const { userId } = req.params;
@@ -49,7 +50,7 @@ export const updateProfile = async (req, res) => {
 export const getOneUser = async (req, res) => {
     const username = req.params.username;
     try {
-        const user = await User.findOne({ username }, { about: 1, firstName: 1, lastName: 1, posts: 1, pets: 1, username: 1, profileUrl: 1, privacy: 1, gender: 1 });
+        const user = await User.findOne({ username }, { about: 1, firstName: 1, lastName: 1, posts: 1, pets: 1, username: 1, profileUrl: 1, privacy: 1, gender: 1, followers: 1, followings: 1 });
         if (user) {
             return res.json({ user });
         }
@@ -200,5 +201,29 @@ export const search = async (req, res) => {
     } catch (error) {
         console.error('Error searching:', error);
         res.status(500).json({ message: 'An error occurred while searching' });
+    }
+}
+
+export const getFollowers = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const followers = await User.findById(id, { followers: 1 }).populate({ path: "followers", select: { firstName: 1, lastName: 1, username: 1, profileUrl: 1 } });
+        if (followers) {
+            return res.json(followers)
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error", status: "error" });
+    }
+}
+
+export const getFollowings = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const followings = await User.findById(id, { followings: 1 }).populate({ path: "followings", select: { firstName: 1, lastName: 1, username: 1, profileUrl: 1 } });
+        if (followings) {
+            return res.json(followings)
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error", status: "error" });
     }
 }
