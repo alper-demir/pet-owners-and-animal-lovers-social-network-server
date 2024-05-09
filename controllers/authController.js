@@ -2,6 +2,7 @@ import User from "../models/User.js"
 import bcrypt from "bcrypt"
 import generateToken from "../utils/generateToken.js";
 import jwt from "jsonwebtoken"
+import sendEmail from "../utils/sendEmail.js";
 
 export const register = async (req, res) => {
     const { firstName, lastName, username, email, password } = req.body;
@@ -74,5 +75,43 @@ export const verifyTokenValid = (req, res) => {
 
     } catch (error) {
         return res.json({ message: "Invalid or expired token.", verify: false });
+    }
+}
+
+export const resetPassword = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.json({ message: "Incorrect mail!", status: "error" }).status(400)
+        }
+        const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "5m" });
+        sendEmail(email, "Reset Your POALSNet Password", `Please use this link to reset your password. The link is valid for 5 minutes: ${process.env.CLIENT_URL}/reset-password/${token}/${user._id}`);
+        return res.json({ message: "We have sent you the password reset link. Please check your email box.", status: "success" });
+    } catch (error) {
+        console.log(error);
+        return res.json({ message: "An error occured during email send.", status: "error" });
+    }
+}
+
+export const changePassword = async (req, res) => {
+    const { id, password } = req.body;
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.json({ message: "User error! Try later.", status: "error" }).status(400)
+        }
+
+        const hashedNewPassword = await bcrypt.hash(password, 10);
+
+        const updatedPassword = await user.updateOne({ password: hashedNewPassword }, { new: true });
+        if (updatedPassword) {
+            return res.json({ message: "Password changed successfully.", status: "success" });
+        }
+
+        return res.json({ message: "Password change error.", status: "error" });
+    } catch (error) {
+        console.log(error);
+        return res.json({ message: "An error occured during change password.", status: "error" });
     }
 }
