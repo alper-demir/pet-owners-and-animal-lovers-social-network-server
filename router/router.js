@@ -4,7 +4,7 @@ import upload from '../utils/upload.js'
 
 import { login, register, verifyTokenValid, resetPassword, changePassword } from "../controllers/authController.js"
 import { createPost, getOnePost, updatePost, deletePost } from "../controllers/postController.js"
-import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, search, getFollowers, getFollowings } from "../controllers/userController.js"
+import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, search, getFollowers, getFollowings, timeline } from "../controllers/userController.js"
 import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from "../controllers/petProfileController.js"
 import { createComment } from "../controllers/commentController.js"
 import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowRequest, acceptFollowRequest, rejectFollowRequest } from "../controllers/followRequestController.js"
@@ -56,6 +56,8 @@ router.get("/search", search)
 router.post("/followers/:id", verifyToken, getFollowers)
 
 router.post("/followings/:id", verifyToken, getFollowings)
+
+router.get('/timeline/:id/:type', timeline)
 
 // Pet Profile Operations
 router.post("/create-pet-profile", upload.single("image"), verifyToken, createPetProfile);

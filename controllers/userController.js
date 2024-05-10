@@ -227,3 +227,40 @@ export const getFollowings = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", status: "error" });
     }
 }
+
+export const timeline = async (req, res) => {
+    const { id, type } = req.params;
+    try {
+        if (type === "posts") {
+            const user = await User.findById(id);
+            if (!user) {
+                return res.status(404).json({ message: "User not found", status: "error" });
+            }
+
+            // Find posts of the users that the current user is following
+            const timelinePosts = await Post.find({ userId: { $in: user.followings } })
+                .populate("userId", "firstName lastName username profileUrl")
+                .sort({ createdAt: -1 });
+
+            return res.json({ timeline: timelinePosts, status: "success" });
+        }
+
+        if (type === "notices") {
+            const user = await User.findById(id);
+            if (!user) {
+                return res.status(404).json({ message: "User not found", status: "error" });
+            }
+
+            // Find notices of the users that the current user is following
+            const timelineNotices = await LostPet.find({ userId: { $in: user.followings } })
+                .populate("userId", "firstName lastName username profileUrl")
+                .sort({ createdAt: -1 });
+
+            return res.json({ timeline: timelineNotices, status: "success" });
+        }
+
+    } catch (error) {
+        console.error("Error fetching timeline:", error);
+        return res.status(500).json({ message: "Internal Server Error", status: "error" });
+    }
+}
