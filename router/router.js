@@ -6,7 +6,7 @@ import { login, register, verifyTokenValid, resetPassword, changePassword } from
 import { createPost, getOnePost, updatePost, deletePost } from "../controllers/postController.js"
 import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, search, getFollowers, getFollowings, timeline } from "../controllers/userController.js"
 import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from "../controllers/petProfileController.js"
-import { createComment } from "../controllers/commentController.js"
+import { createComment, deleteComment, editComment } from "../controllers/commentController.js"
 import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowRequest, acceptFollowRequest, rejectFollowRequest } from "../controllers/followRequestController.js"
 import { createLostPetNotice, getLostPetNoticeList, getOneLostPetNotice, updateOneNotice, deleteNotice } from "../controllers/lostPetNoticeController.js"
 
@@ -70,6 +70,10 @@ router.delete('/delete-pet-profile/:id', verifyToken, deletePetProfile)
 
 // Comment Operations
 router.post('/create-comment', verifyToken, createComment)
+
+router.post('/delete-comment/:id', verifyToken, deleteComment)
+
+router.post('/edit-comment/:id', verifyToken, editComment)
 
 // Follow Request Operations
 router.post("/send-follow-request", verifyToken, sendFollowRequest);
