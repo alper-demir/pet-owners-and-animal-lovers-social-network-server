@@ -81,7 +81,11 @@ const UserSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-    }
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
 });
 
 export default mongoose.model("User", UserSchema);

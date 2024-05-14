@@ -21,7 +21,9 @@ export const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({ firstName, lastName, username, email, password: hashedPassword });
         if (newUser) {
-            return res.json({ newUser, message: "Registration successful" }).status(201);
+            const token = jwt.sign({ id: newUser._id, email: email }, process.env.SECRET_KEY, { expiresIn: "1d" });
+            sendEmail(email, "Confirm your POALSNet Registration", `Please use this link to confirm your POALSNet account. The link is valid for 24 hours: ${process.env.CLIENT_URL}/confirm-account/${token}/${newUser._id} If you have not done this, please do not take any action. Regards.`);
+            return res.json({ newUser, message: "We have sent you the account confirm link. Please check your email box." }).status(201);
         }
         return res.json({ message: "User create error" }).status(404);
     }
@@ -113,5 +115,23 @@ export const changePassword = async (req, res) => {
     } catch (error) {
         console.log(error);
         return res.json({ message: "An error occured during change password.", status: "error" });
+    }
+}
+
+export const verifyEmail = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await User.findById(id);
+        if (user.isVerified) {
+            return res.json({ message: "This account already verified!", status: "warning" });
+        } else {
+            const user = await User.findByIdAndUpdate(id, { isVerified: true });
+            if (!user) {
+                return res.json({ message: "Email verify error! Try later.", status: "error" }).status(400)
+            }
+        }
+        return res.json({ message: "Email verified successfully.", status: "success" });
+    } catch (error) {
+        return res.json({ message: "An error occured during email verification.", status: "error" });
     }
 }

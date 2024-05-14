@@ -2,7 +2,7 @@ import express from 'express'
 import verifyToken from "../middlewares/verifyToken.js"
 import upload from '../utils/upload.js'
 
-import { login, register, verifyTokenValid, resetPassword, changePassword } from "../controllers/authController.js"
+import { login, register, verifyTokenValid, resetPassword, changePassword, verifyEmail } from "../controllers/authController.js"
 import { createPost, getOnePost, updatePost, deletePost } from "../controllers/postController.js"
 import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, search, getFollowers, getFollowings, timeline } from "../controllers/userController.js"
 import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from "../controllers/petProfileController.js"
@@ -22,6 +22,8 @@ router.post('/verify-token', verifyTokenValid);
 router.post('/reset-password', resetPassword)
 
 router.post('/change-password', changePassword)
+
+router.post('/verify-email/:id', verifyToken, verifyEmail)
 
 // Post Operations
 router.post("/create-post", upload.single("image"), verifyToken, createPost);
