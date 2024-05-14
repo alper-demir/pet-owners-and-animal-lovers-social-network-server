@@ -22,7 +22,7 @@ export const register = async (req, res) => {
         const newUser = await User.create({ firstName, lastName, username, email, password: hashedPassword });
         if (newUser) {
             const token = jwt.sign({ id: newUser._id, email: email }, process.env.SECRET_KEY, { expiresIn: "1d" });
-            sendEmail(email, "Confirm your POALSNet Registration", `Please use this link to confirm your POALSNet account. The link is valid for 24 hours: ${process.env.CLIENT_URL}/confirm-account/${token}/${newUser._id} If you have not done this, please do not take any action. Regards.`);
+            sendEmail(email, "Confirm your POALSNet Registration", `Thank you for registering on the POALSNet platform. Please use this link to confirm your POALSNet account. The link is valid for 24 hours: ${process.env.CLIENT_URL}/confirm-account/${token}/${newUser._id} If you have not done this, please do not take any action. Regards.`);
             return res.json({ newUser, message: "We have sent you the account confirm link. Please check your email box." }).status(201);
         }
         return res.json({ message: "User create error" }).status(404);
