@@ -123,7 +123,7 @@ export const verifyEmail = async (req, res) => {
     try {
         const user = await User.findById(id);
         if (user.isVerified) {
-            return res.json({ message: "This account already verified!", status: "warning" });
+            return res.json({ message: `${user.email} is already verified!`, status: "warning" });
         } else {
             const user = await User.findByIdAndUpdate(id, { isVerified: true });
             if (!user) {
