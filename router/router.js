@@ -9,6 +9,8 @@ import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from 
 import { createComment, deleteComment, editComment } from "../controllers/commentController.js"
 import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowRequest, acceptFollowRequest, rejectFollowRequest } from "../controllers/followRequestController.js"
 import { createLostPetNotice, getLostPetNoticeList, getOneLostPetNotice, updateOneNotice, deleteNotice } from "../controllers/lostPetNoticeController.js"
+import { createDiscussion, getDiscussionList, getOneDiscussion } from "../controllers/communityDiscussion.js"
+import { createTip, deleteTip, editTip } from "../controllers/tipController.js"
 
 const router = express.Router();
 
@@ -98,5 +100,21 @@ router.get("/lost-pet-notice/:id", getOneLostPetNotice);
 router.put("/lost-pet-notice/:id", upload.single("image"), verifyToken, updateOneNotice);
 
 router.delete('/delete-notice/:id', verifyToken, deleteNotice);
+
+// Community Discussions Operations
+
+router.post("/create-discussion", verifyToken, createDiscussion)
+
+router.get('/community-discussions', getDiscussionList)
+
+router.get('/discussion/:id', getOneDiscussion);
+
+// Tip Operations
+
+router.post('/create-tip', verifyToken, createTip);
+
+router.post('/delete-tip/:id', verifyToken, deleteTip)
+
+router.post('/edit-tip/:id', verifyToken, editTip)
 
 export default router;
