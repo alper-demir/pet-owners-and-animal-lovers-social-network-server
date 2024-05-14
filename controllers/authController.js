@@ -46,15 +46,20 @@ export const login = async (req, res) => {
         if (user) {
             const compare = await bcrypt.compare(password, user.password);
             if (compare) {
-                // User has been authenticated, generate and return token.
-                const token = generateToken(data);
-
-                return res.json({ message: "Successfuly logged in", login: true, token }).status(200);
+                if (!user.isVerified) {
+                    const token = jwt.sign({ id: user._id, email: email }, process.env.SECRET_KEY, { expiresIn: "1d" });
+                    sendEmail(email, "Confirm your POALSNet Registration", `Please use this link to confirm your POALSNet account. The link is valid for 24 hours: ${process.env.CLIENT_URL}/confirm-account/${token}/${user._id} If you have not done this, please do not take any action. Regards.`);
+                    return res.json({ message: "Your account is not validated please check your email box to confirm your account.", login: false }).status(200);
+                } else {
+                    // User has been authenticated, generate and return token.
+                    const token = generateToken(data);
+                    return res.json({ message: "Successfuly logged in", login: true, token }).status(200);
+                }
             }
-            return res.json({ message: "Incorret credentials", login: false }).status(401);
+            return res.json({ message: "Incorret credentials please check your password.", login: false }).status(401);
         }
 
-        return res.json({ message: "Wrong email", login: false }).status(400);
+        return res.json({ message: "Your email is wrong.", login: false }).status(400);
     }
     catch (error) {
         console.log("Login error: " + error);
