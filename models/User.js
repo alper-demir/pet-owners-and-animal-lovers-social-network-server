@@ -78,6 +78,18 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],
+    discussions: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "CommunityDiscussion",
+        }
+    ],
+    tips: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Tip",
+        }
+    ],
     createdAt: {
         type: Date,
         default: Date.now,
