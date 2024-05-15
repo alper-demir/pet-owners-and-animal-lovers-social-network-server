@@ -98,6 +98,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isVolunteer: {
+        type: Boolean,
+        default: false
+    },
 });
 
 export default mongoose.model("User", UserSchema);

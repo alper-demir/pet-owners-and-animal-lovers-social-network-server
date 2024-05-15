@@ -11,6 +11,7 @@ import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowReques
 import { createLostPetNotice, getLostPetNoticeList, getOneLostPetNotice, updateOneNotice, deleteNotice } from "../controllers/lostPetNoticeController.js"
 import { createDiscussion, getDiscussionList, getOneDiscussion } from "../controllers/communityDiscussion.js"
 import { createTip, deleteTip, editTip } from "../controllers/tipController.js"
+import { becomeVolunteer, leaveVolunteer, getOneVolunteer, updateVolunteerCity, getVolunteersStats, getVolunteersByCity } from "../controllers/volunteerController.js"
 
 const router = express.Router();
 
@@ -116,5 +117,19 @@ router.post('/create-tip', verifyToken, createTip);
 router.post('/delete-tip/:id', verifyToken, deleteTip)
 
 router.post('/edit-tip/:id', verifyToken, editTip)
+
+// Volunteer Operations
+
+router.post("/volunteer", verifyToken, becomeVolunteer);
+
+router.post("/volunteer/leave", verifyToken, leaveVolunteer);
+
+router.get("/volunteer/:userId", getOneVolunteer);
+
+router.put("/volunteer", updateVolunteerCity);
+
+router.get("/volunteers/stats", getVolunteersStats);
+
+router.get("/volunteers/:city", getVolunteersByCity);
 
 export default router;
