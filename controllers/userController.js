@@ -50,7 +50,7 @@ export const updateProfile = async (req, res) => {
 export const getOneUser = async (req, res) => {
     const username = req.params.username;
     try {
-        const user = await User.findOne({ username }, { about: 1, firstName: 1, lastName: 1, posts: 1, pets: 1, username: 1, profileUrl: 1, privacy: 1, gender: 1, followers: 1, followings: 1 });
+        const user = await User.findOne({ username }, { about: 1, firstName: 1, lastName: 1, posts: 1, pets: 1, username: 1, profileUrl: 1, privacy: 1, gender: 1, followers: 1, followings: 1, isVolunteer: 1 });
         if (user) {
             return res.json({ user });
         }
