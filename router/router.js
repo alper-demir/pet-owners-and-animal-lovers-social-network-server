@@ -12,7 +12,7 @@ import { createLostPetNotice, getLostPetNoticeList, getOneLostPetNotice, updateO
 import { createDiscussion, getDiscussionList, getOneDiscussion } from "../controllers/communityDiscussion.js"
 import { createTip, deleteTip, editTip } from "../controllers/tipController.js"
 import { becomeVolunteer, leaveVolunteer, getOneVolunteer, updateVolunteerCity, getVolunteersStats, getVolunteersByCity } from "../controllers/volunteerController.js"
-import { createAdoptionNotice, getAdoptionNoticeList, getOneAdoptionNotice, updateOneAdoptionNotice, deleteAdoptionNotice } from "../controllers/AdoptionNoticeController.js"
+import { createAdoptionNotice, getAdoptionNoticeList, getOneAdoptionNotice, updateOneAdoptionNotice, deleteAdoptionNotice } from "../controllers/adoptionNoticeController.js"
 
 const router = express.Router();
 
