@@ -52,6 +52,12 @@ const UserSchema = new mongoose.Schema({
             ref: "LostPet",
         }
     ],
+    adoptionNotices: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "AdoptionNotice",
+        }
+    ],
     comments: [
         {
             type: mongoose.Schema.Types.ObjectId,

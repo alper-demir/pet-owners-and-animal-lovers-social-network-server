@@ -4,7 +4,7 @@ import upload from '../utils/upload.js'
 
 import { login, register, verifyTokenValid, resetPassword, changePassword, verifyEmail } from "../controllers/authController.js"
 import { createPost, getOnePost, updatePost, deletePost } from "../controllers/postController.js"
-import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, search, getFollowers, getFollowings, timeline } from "../controllers/userController.js"
+import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, getAllAdoptionNoticesOfOneUser, search, getFollowers, getFollowings, timeline } from "../controllers/userController.js"
 import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from "../controllers/petProfileController.js"
 import { createComment, deleteComment, editComment } from "../controllers/commentController.js"
 import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowRequest, acceptFollowRequest, rejectFollowRequest } from "../controllers/followRequestController.js"
@@ -12,6 +12,7 @@ import { createLostPetNotice, getLostPetNoticeList, getOneLostPetNotice, updateO
 import { createDiscussion, getDiscussionList, getOneDiscussion } from "../controllers/communityDiscussion.js"
 import { createTip, deleteTip, editTip } from "../controllers/tipController.js"
 import { becomeVolunteer, leaveVolunteer, getOneVolunteer, updateVolunteerCity, getVolunteersStats, getVolunteersByCity } from "../controllers/volunteerController.js"
+import { createAdoptionNotice, getAdoptionNoticeList, getOneAdoptionNotice, updateOneAdoptionNotice, deleteAdoptionNotice } from "../controllers/AdoptionNoticeController.js"
 
 const router = express.Router();
 
@@ -49,6 +50,8 @@ router.post('/pets/:username', verifyToken, getAllPetsOfOneUser);
 router.post('/posts/:username', verifyToken, getAllPostsOfOneUser);
 
 router.post('/notices/:username', verifyToken, getAllNoticesOfOneUser);
+
+router.post('/adoption-notices/:username', verifyToken, getAllAdoptionNoticesOfOneUser);
 
 router.post("/like-post", verifyToken, likePost);
 
@@ -131,5 +134,17 @@ router.put("/volunteer", updateVolunteerCity);
 router.get("/volunteers/stats", getVolunteersStats);
 
 router.get("/volunteers/:city", getVolunteersByCity);
+
+// Adoption Notice Operations
+
+router.post('/create-adoption-notice', upload.single('image'), verifyToken, createAdoptionNotice);
+
+router.get('/adoption-notice-list', getAdoptionNoticeList);
+
+router.get('/adoption-notice/:id', getOneAdoptionNotice);
+
+router.put("/adoption-notice/:id", upload.single("image"), verifyToken, updateOneAdoptionNotice);
+
+router.delete('/delete-adoption-notice/:id', verifyToken, deleteAdoptionNotice);
 
 export default router;

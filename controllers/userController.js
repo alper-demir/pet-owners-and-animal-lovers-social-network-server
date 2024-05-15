@@ -97,6 +97,18 @@ export const getAllNoticesOfOneUser = async (req, res) => {
     }
 }
 
+export const getAllAdoptionNoticesOfOneUser = async (req, res) => {
+    const username = req.params.username;
+
+    try {
+        const adoptionNotices = await User.findOne({ username }).populate("adoptionNotices").select("adoptionNotices");
+        res.json(adoptionNotices);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', status: "error" });
+    }
+}
+
 export const likePost = async (req, res) => {
     const { userId, postId } = req.body;
     try {
