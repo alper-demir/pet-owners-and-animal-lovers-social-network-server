@@ -4,7 +4,7 @@ import upload from '../utils/upload.js'
 
 import { login, register, verifyTokenValid, resetPassword, changePassword, verifyEmail } from "../controllers/authController.js"
 import { createPost, getOnePost, updatePost, deletePost } from "../controllers/postController.js"
-import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, getAllAdoptionNoticesOfOneUser, search, getFollowers, getFollowings, timeline } from "../controllers/userController.js"
+import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, getAllAdoptionNoticesOfOneUser, search, getFollowers, getFollowings, timeline, doesUserAllowedToSeeContent } from "../controllers/userController.js"
 import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from "../controllers/petProfileController.js"
 import { createComment, deleteComment, editComment } from "../controllers/commentController.js"
 import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowRequest, acceptFollowRequest, rejectFollowRequest } from "../controllers/followRequestController.js"
@@ -66,6 +66,8 @@ router.post("/followers/:id", verifyToken, getFollowers)
 router.post("/followings/:id", verifyToken, getFollowings)
 
 router.get('/timeline/:id/:type', timeline)
+
+router.post('/check-user-allowed-to-see-content', verifyToken, doesUserAllowedToSeeContent)
 
 // Pet Profile Operations
 router.post("/create-pet-profile", upload.single("image"), verifyToken, createPetProfile);
@@ -139,7 +141,7 @@ router.get("/volunteers/:city", getVolunteersByCity);
 
 router.post('/create-adoption-notice', upload.single('image'), verifyToken, createAdoptionNotice);
 
-router.get('/adoption-notice-list', getAdoptionNoticeList);
+router.get('/adoption-notices', getAdoptionNoticeList);
 
 router.get('/adoption-notice/:id', getOneAdoptionNotice);
 

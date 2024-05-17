@@ -276,3 +276,18 @@ export const timeline = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", status: "error" });
     }
 }
+
+export const doesUserAllowedToSeeContent = async (req, res) => {
+    const { userId, contentOwnerId } = req.body;
+    try {
+        const user = await User.findById(userId);
+        const contentOwnner = await User.findById(contentOwnerId);
+        if (contentOwnner.privacy === "public" || user.followings.includes(contentOwnerId) || userId == contentOwnerId) {
+            return res.json({ message: "User can see content", status: "success", allowed: true });
+        }
+        return res.json({ message: "You cannot view this content. The account is private or you are not following it!", status: "success", allowed: false });
+
+    } catch (error) {
+        return res.json({ message: "Error!", status: "error", allowed: false });
+    }
+}
