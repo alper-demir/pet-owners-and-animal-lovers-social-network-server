@@ -36,11 +36,22 @@ export const createAdoptionNotice = async (req, res) => {
 
 export const getAdoptionNoticeList = async (req, res) => {
     try {
-        const adoptionNotices = await AdoptionNotice.find().populate("userId", { username: 1, firstName: 1, lastName: 1 });
-        res.status(200).json(adoptionNotices);
+        const { page = 1, limit = 20 } = req.query;
+        const adoptionNotices = await AdoptionNotice.find().populate("userId", { username: 1, firstName: 1, lastName: 1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+        const totalCount = await AdoptionNotice.countDocuments();
+
+        const totalPages = Math.ceil(totalCount / limit);
+        return res.status(200).json({
+            adoptionNotices,
+            totalPages,
+            currentPage: page
+        });
     } catch (error) {
-        console.error('Error listing adoption notices:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error listing adoption notice listings:', error);
+        return res.status(500).json({ message: 'Server error', status: "error" });
     }
 }
 
