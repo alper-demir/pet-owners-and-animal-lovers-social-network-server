@@ -13,8 +13,13 @@ import { createDiscussion, getDiscussionList, getOneDiscussion } from "../contro
 import { createTip, deleteTip, editTip } from "../controllers/tipController.js"
 import { becomeVolunteer, leaveVolunteer, getOneVolunteer, updateVolunteerCity, getVolunteersStats, getVolunteersByCity } from "../controllers/volunteerController.js"
 import { createAdoptionNotice, getAdoptionNoticeList, getOneAdoptionNotice, updateOneAdoptionNotice, deleteAdoptionNotice } from "../controllers/adoptionNoticeController.js"
+import { getCities } from '../controllers/indexController.js'
 
 const router = express.Router();
+
+// General Operations
+
+router.get('/cities', getCities)
 
 // Auth Operations
 router.post("/register", register)
