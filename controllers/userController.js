@@ -4,8 +4,8 @@ import LostPet from "../models/LostPet.js"
 import fs from "fs"
 import path from "path"
 import Pet from "../models/PetProfile.js"
-import { json } from "express"
 import generateToken from "../utils/generateToken.js"
+import bcrypt from "bcrypt"
 
 export const updateProfileImage = async (req, res) => {
     const { userId } = req.params;
@@ -326,5 +326,29 @@ export const changeUsername = async (req, res) => {
     } catch (error) {
         console.error('Error changing username:', error);
         return res.status(500).json({ message: 'Server error', status: "error" });
+    }
+}
+
+export const changePasswordInProfile = async (req, res) => {
+    const { userId, oldPassword, newPassword } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found', status: "error" });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.json({ message: 'Incorrect old password', status: "error" });
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        return res.status(200).json({ message: 'Password successfully changed', status: "success" });
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 }
