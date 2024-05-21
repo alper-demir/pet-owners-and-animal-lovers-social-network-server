@@ -4,7 +4,7 @@ import upload from '../utils/upload.js'
 
 import { login, register, verifyTokenValid, resetPassword, changePassword, verifyEmail } from "../controllers/authController.js"
 import { createPost, getOnePost, updatePost, deletePost } from "../controllers/postController.js"
-import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, getAllAdoptionNoticesOfOneUser, search, getFollowers, getFollowings, timeline, doesUserAllowedToSeeContent } from "../controllers/userController.js"
+import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, getAllAdoptionNoticesOfOneUser, search, getFollowers, getFollowings, timeline, doesUserAllowedToSeeContent, checkUsernameValid, changeUsername } from "../controllers/userController.js"
 import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from "../controllers/petProfileController.js"
 import { createComment, deleteComment, editComment } from "../controllers/commentController.js"
 import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowRequest, acceptFollowRequest, rejectFollowRequest } from "../controllers/followRequestController.js"
@@ -73,6 +73,10 @@ router.post("/followings/:id", verifyToken, getFollowings)
 router.get('/timeline/:id/:type', timeline)
 
 router.post('/check-user-allowed-to-see-content', verifyToken, doesUserAllowedToSeeContent)
+
+router.post('/check-username', checkUsernameValid)
+
+router.put('/change-username', changeUsername);
 
 // Pet Profile Operations
 router.post("/create-pet-profile", upload.single("image"), verifyToken, createPetProfile);

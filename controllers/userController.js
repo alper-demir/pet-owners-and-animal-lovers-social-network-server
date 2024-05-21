@@ -5,6 +5,7 @@ import fs from "fs"
 import path from "path"
 import Pet from "../models/PetProfile.js"
 import { json } from "express"
+import generateToken from "../utils/generateToken.js"
 
 export const updateProfileImage = async (req, res) => {
     const { userId } = req.params;
@@ -289,5 +290,41 @@ export const doesUserAllowedToSeeContent = async (req, res) => {
 
     } catch (error) {
         return res.json({ message: "Error!", status: "error", allowed: false });
+    }
+}
+
+export const checkUsernameValid = async (req, res) => {
+    const { username } = req.body;
+
+    try {
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.json({ message: "Username is avaliable.", status: "success", avaliable: true });
+        }
+        return res.json({ message: "Username is not avaliable!", status: "success", avaliable: false });
+    } catch (error) {
+        return res.json({ message: "Error username", status: "error" });
+    }
+
+}
+
+export const changeUsername = async (req, res) => {
+    const { userId, newUsername, data } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found', status: "error" });
+        }
+
+        user.username = newUsername;
+        await user.save();
+
+        const newToken = generateToken(data);
+
+        return res.status(200).json({ message: 'Username successfully changed', status: "success", token: newToken });
+    } catch (error) {
+        console.error('Error changing username:', error);
+        return res.status(500).json({ message: 'Server error', status: "error" });
     }
 }
