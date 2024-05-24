@@ -1,6 +1,7 @@
 import User from "../models/User.js"
 import Post from "../models/Post.js"
 import LostPet from "../models/LostPet.js"
+import AdoptionNotice from "../models/AdoptionNotice.js"
 import fs from "fs"
 import path from "path"
 import Pet from "../models/PetProfile.js"
@@ -196,14 +197,14 @@ export const search = async (req, res) => {
                 { lastName: { $regex: searchText, $options: 'i' } },
                 { username: { $regex: searchText, $options: 'i' } }
             ]
-        }).select('firstName lastName username profileUrl').limit(5);
+        }).select('firstName lastName username profileUrl').limit(6);
 
         const posts = await Post.find({
             $or: [
                 { title: { $regex: searchText, $options: 'i' } },
                 { content: { $regex: searchText, $options: 'i' } }
             ]
-        }).select('content image').limit(5);
+        }).select('content image').limit(6);
 
         const pets = await Pet.find({
             $or: [
@@ -211,16 +212,24 @@ export const search = async (req, res) => {
                 { species: { $regex: searchText, $options: 'i' } },
                 { breed: { $regex: searchText, $options: 'i' } }
             ]
-        }).select('name species breed profileUrl').limit(5);
+        }).select('name species breed profileUrl').limit(6);
 
         const lostPets = await LostPet.find({
             $or: [
                 { name: { $regex: searchText, $options: 'i' } },
                 { description: { $regex: searchText, $options: 'i' } }
             ]
-        }).select('name description image').limit(5);
+        }).select('name description image').limit(6);
 
-        res.json({ users, posts, pets, lostPets });
+        const adoptionNotices = await AdoptionNotice.find({
+            $or: [
+                { title: { $regex: searchText, $options: 'i' } },
+                { description: { $regex: searchText, $options: 'i' } },
+                { city: { $regex: searchText, $options: 'i' } }
+            ]
+        }).select('title description image city').limit(6);
+
+        res.json({ users, posts, pets, lostPets, adoptionNotices });
     } catch (error) {
         console.error('Error searching:', error);
         res.status(500).json({ message: 'An error occurred while searching' });
