@@ -62,6 +62,16 @@ export const getOneUser = async (req, res) => {
     }
 }
 
+export const getOneUserById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await User.findById(id, { username: 1, firstName: 1, lastName: 1, profileUrl: 1 });
+        return res.json(user);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export const getAllPostsOfOneUser = async (req, res) => {
     const username = req.params.username;
 

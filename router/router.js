@@ -4,7 +4,7 @@ import upload from '../utils/upload.js'
 
 import { login, register, verifyTokenValid, resetPassword, changePassword, verifyEmail } from "../controllers/authController.js"
 import { createPost, getOnePost, updatePost, deletePost } from "../controllers/postController.js"
-import { updateProfileImage, updateProfile, getOneUser, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, getAllAdoptionNoticesOfOneUser, search, getFollowers, getFollowings, timeline, doesUserAllowedToSeeContent, checkUsernameValid, changeUsername, changePasswordInProfile } from "../controllers/userController.js"
+import { updateProfileImage, updateProfile, getOneUser, getOneUserById, getAllPetsOfOneUser, getAllPostsOfOneUser, likePost, didUserLikeThePost, checkProfileVisibility, getAllNoticesOfOneUser, getAllAdoptionNoticesOfOneUser, search, getFollowers, getFollowings, timeline, doesUserAllowedToSeeContent, checkUsernameValid, changeUsername, changePasswordInProfile } from "../controllers/userController.js"
 import { createPetProfile, getOnePet, updatePetProfile, deletePetProfile } from "../controllers/petProfileController.js"
 import { createComment, deleteComment, editComment } from "../controllers/commentController.js"
 import { sendFollowRequest, getPendingFollowRequestsOfOneUser, checkFollowRequest, acceptFollowRequest, rejectFollowRequest } from "../controllers/followRequestController.js"
@@ -14,6 +14,7 @@ import { createTip, deleteTip, editTip } from "../controllers/tipController.js"
 import { becomeVolunteer, leaveVolunteer, getOneVolunteer, updateVolunteerCity, getVolunteersStats, getVolunteersByCity } from "../controllers/volunteerController.js"
 import { createAdoptionNotice, getAdoptionNoticeList, getOneAdoptionNotice, updateOneAdoptionNotice, deleteAdoptionNotice } from "../controllers/adoptionNoticeController.js"
 import { getCities } from '../controllers/indexController.js'
+import { getChatHistory, verifyChatAccess } from "../controllers/chatController.js"
 
 const router = express.Router();
 
@@ -49,6 +50,8 @@ router.put('/update-profile-image/:userId', upload.single("image"), verifyToken,
 router.put('/update-profile/:userId', verifyToken, updateProfile);
 
 router.post("/user-data/:username", verifyToken, getOneUser);
+
+router.get("/userbyid/:id", getOneUserById);
 
 router.post('/pets/:username', verifyToken, getAllPetsOfOneUser);
 
@@ -159,5 +162,11 @@ router.get('/adoption-notice/:id', getOneAdoptionNotice);
 router.put("/adoption-notice/:id", upload.single("image"), verifyToken, updateOneAdoptionNotice);
 
 router.delete('/delete-adoption-notice/:id', verifyToken, deleteAdoptionNotice);
+
+// Chat Operations
+
+router.get('/chat-history/:roomId', getChatHistory);
+
+router.get('/verify-chat-access/:roomId/:userId', verifyChatAccess);
 
 export default router;
