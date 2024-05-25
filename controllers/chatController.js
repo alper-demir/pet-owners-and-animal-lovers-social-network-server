@@ -1,3 +1,4 @@
+import Messages from '../models/Messages.js';
 import Message from '../models/Messages.js';
 
 export const getChatHistory = async (req, res) => {
@@ -71,5 +72,15 @@ export const getChats = async (req, res) => {
 
     } catch (error) {
         return res.json({ message: error.message, status: "error" });
+    }
+}
+
+export const markMessagesAsRead = async (req, res) => {
+    const { roomId, userId } = req.body;
+    try {
+        await Message.updateMany({ roomId, receiverId: userId }, { read: true });
+        return res.status(200);
+    } catch (error) {
+        return res.json(error.message);
     }
 }

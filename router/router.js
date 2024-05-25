@@ -14,7 +14,7 @@ import { createTip, deleteTip, editTip } from "../controllers/tipController.js"
 import { becomeVolunteer, leaveVolunteer, getOneVolunteer, updateVolunteerCity, getVolunteersStats, getVolunteersByCity } from "../controllers/volunteerController.js"
 import { createAdoptionNotice, getAdoptionNoticeList, getOneAdoptionNotice, updateOneAdoptionNotice, deleteAdoptionNotice } from "../controllers/adoptionNoticeController.js"
 import { getCities } from '../controllers/indexController.js'
-import { getChatHistory, verifyChatAccess, getChats } from "../controllers/chatController.js"
+import { getChatHistory, verifyChatAccess, getChats, markMessagesAsRead } from "../controllers/chatController.js"
 
 const router = express.Router();
 
@@ -169,5 +169,8 @@ router.get('/chat-history/:roomId', getChatHistory);
 
 router.get('/verify-chat-access/:roomId/:userId', verifyChatAccess);
 
-router.get('/user-chats/:userId', getChats)
+router.get('/user-chats/:userId', getChats);
+
+router.post('/mark-message-as-read', markMessagesAsRead);
+
 export default router;
