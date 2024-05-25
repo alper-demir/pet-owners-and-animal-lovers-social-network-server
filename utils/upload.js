@@ -5,9 +5,7 @@ const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         let uploadPath = 'public/';
         console.log("type: " + file.mimetype)
-        if (file.mimetype.startsWith('image/')) {
-            uploadPath += 'images/';
-        }
+        uploadPath += 'images/';
 
         cb(null, uploadPath); // Dosyaların yükleneceği klasör (error, destination)
     },
