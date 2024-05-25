@@ -1,4 +1,3 @@
-import Messages from '../models/Messages.js';
 import Message from '../models/Messages.js';
 
 export const getChatHistory = async (req, res) => {
@@ -35,8 +34,8 @@ export const getChats = async (req, res) => {
 
         const chats = await Message.find({
             $or: [
-                { receiverId: userId, read: false },
-                { senderId: userId, read: false }
+                { receiverId: userId },
+                { senderId: userId }
             ]
         })
             .select('senderId receiverId content read roomId timestamp')
@@ -78,9 +77,14 @@ export const getChats = async (req, res) => {
 export const markMessagesAsRead = async (req, res) => {
     const { roomId, userId } = req.body;
     try {
-        await Message.updateMany({ roomId, receiverId: userId }, { read: true });
-        return res.status(200);
+        const result = await Message.updateMany({ roomId, receiverId: userId, read: false }, { read: true });
+        if (result.nModified > 0) {
+            return res.sendStatus(200);
+        } else {
+            return res.status(404).json({ message: 'No messages found or already read' });
+        }
     } catch (error) {
-        return res.json(error.message);
+        console.error('Error updating messages:', error);
+        return res.status(500).json({ message: error.message });
     }
-}
+};
