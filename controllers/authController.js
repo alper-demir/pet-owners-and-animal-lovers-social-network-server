@@ -93,7 +93,7 @@ export const resetPassword = async (req, res) => {
             return res.json({ message: "Incorrect mail!", status: "error" }).status(400)
         }
         const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "5m" });
-        sendEmail(email, "Reset Your POALSNet Password", `Please use this link to reset your password. The link is valid for 5 minutes: ${process.env.CLIENT_URL}/reset-password/${token}/${user._id}`);
+        sendEmail(email, "Reset Your POALSNet Password", `Please use this link to reset your password. The link is valid for 5 minutes: ${process.env.CLIENT_URL_PROD}/reset-password/${token}/${user._id}`);
         return res.json({ message: "We have sent you the password reset link. Please check your email box.", status: "success" });
     } catch (error) {
         console.log(error);
