@@ -12,7 +12,7 @@ const sendEmail = (targetMail, mailSubject, mailContent) => {
 
     const mailOptions = {
         from: process.env.EMAIL_ADDRESS,
-        to: process.env.EMAIL_ADDRESS,
+        to: targetMail,
         subject: mailSubject,
         text: mailContent
     };
